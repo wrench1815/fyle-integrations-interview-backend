@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "fyle-integrations-interview-backend"
+version = "0.1.0"
+description = ""
+authors = ["wrench1815 <hardeepkumar1815@gmail.com>"]
+readme = "README.md"
+packages = [{include = "fyle_integrations_interview_backend"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "3.1.14"
+djangorestframework = "3.11.2"
+pytest-django = "4.4.0"
+pytest = "6.2.5"
+pytest-cov = "2.12.1"
+yapf = "^0.32.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
