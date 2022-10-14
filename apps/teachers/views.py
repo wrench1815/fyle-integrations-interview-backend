@@ -6,7 +6,7 @@ from .serializers import TeacherAssignmentSerializer, TeacherAssignmentGradeSeri
 from apps.students.models import Assignment
 
 
-class TeacherListCreateAPIView(generics.ListCreateAPIView):
+class TeacherListCreateAPIView(generics.GenericAPIView):
     '''
         allowed methods: GET PATCH
 
@@ -40,6 +40,7 @@ class TeacherListCreateAPIView(generics.ListCreateAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
         if 'student' in request.data:
             return Response(
                 data={
@@ -54,6 +55,7 @@ class TeacherListCreateAPIView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         assignment = None
+
         try:
             assignment = Assignment.objects.get(id=serializer.data['id'])
         except Assignment.DoesNotExist:
@@ -87,6 +89,7 @@ class TeacherListCreateAPIView(generics.ListCreateAPIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
         elif assignment.state == 'GRADED':
             return Response(
                 data={
@@ -95,6 +98,7 @@ class TeacherListCreateAPIView(generics.ListCreateAPIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
         else:
             return Response(
                 data={
