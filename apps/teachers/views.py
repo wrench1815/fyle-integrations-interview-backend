@@ -32,6 +32,24 @@ class TeacherListCreateAPIView(generics.ListCreateAPIView):
         )
 
     def patch(self, request, *args, **kwargs):
+        if 'content' in request.data:
+            return Response(
+                data={
+                    'non_field_errors':
+                    ['Teacher cannot change the content of the assignment']
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if 'student' in request.data:
+            return Response(
+                data={
+                    'non_field_errors': [
+                        'Teacher cannot change the student who submitted the assignment'
+                    ]
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         serializer = TeacherAssignmentGradeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -41,24 +59,47 @@ class TeacherListCreateAPIView(generics.ListCreateAPIView):
         except Assignment.DoesNotExist:
             return Response(
                 data={
-                    'error': [
-                        'Assignment does not exist',
-                    ],
+                    'error': 'Assignment does not exist',
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        try:
-            assignment.grade = serializer.data['grade']
-            assignment.state = 'GRADED'
-            assignment.save()
-
-        except Exception as ex:
+        if assignment.teacher.user != request.user:
             return Response(
                 data={
-                    'error': [
+                    'non_field_errors':
+                    ['Teacher cannot grade for other teacher'
+                     's assignment']
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if assignment.state == 'SUBMITTED':
+            try:
+                assignment.grade = serializer.data['grade']
+                assignment.state = 'GRADED'
+                assignment.save()
+
+            except Exception as ex:
+                return Response(
+                    data={
                         'Failed to Grade Assignment. Try Again.',
-                    ],
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        elif assignment.state == 'GRADED':
+            return Response(
+                data={
+                    'non_field_errors':
+                    ['GRADED assignments cannot be graded again']
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            return Response(
+                data={
+                    'non_field_errors':
+                    ['SUBMITTED assignments can only be graded']
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )

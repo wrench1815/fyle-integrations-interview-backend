@@ -6,6 +6,6 @@ urlpatterns = [
     path(
         'assignments/',
         TeacherListCreateAPIView.as_view(),
-        name='teacher-assignments',
+        name='teachers-assignments',
     ),
 ]
